@@ -1,5 +1,4 @@
-import { WorkCardGrid } from './components/WorkCards';
-import { validCardSpecs } from './domain/fixtures';
+import { StreamConsole } from './components/StreamConsole';
 import './App.css';
 
 const navigation = ['Runs', 'Cards', 'Stream', 'Validation'];
@@ -17,7 +16,7 @@ export default function App() {
         <nav>
           {navigation.map((item) => (
             <button
-              className={item === 'Cards' ? 'nav-item is-active' : 'nav-item'}
+              className={item === 'Stream' ? 'nav-item is-active' : 'nav-item'}
               key={item}
               type="button"
             >
@@ -31,14 +30,14 @@ export default function App() {
         <header className="workspace-header">
           <div>
             <p className="eyebrow">Controlled renderer</p>
-            <h1 id="workspace-title">Approved work cards</h1>
+            <h1 id="workspace-title">Live run</h1>
           </div>
           <span className="status" role="status">
-            Catalog verified
+            Replay ready
           </span>
         </header>
 
-        <WorkCardGrid specs={validCardSpecs} />
+        <StreamConsole />
       </section>
     </main>
   );
