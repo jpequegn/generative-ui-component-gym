@@ -99,9 +99,10 @@ export const initialRunState: RunState = {
 };
 
 function riskCards(data: z.infer<typeof RiskChangeSchema>): UiCardSpec[] {
+  const approvalLabel = data.routeLabel.replace(/^review\s+/i, '').toLowerCase();
   const approval = ApprovalPromptSchema.parse({
     routeId: data.routeId,
-    title: `Approve ${data.routeLabel.toLowerCase()}`,
+    title: `Approve ${approvalLabel}`,
     required: data.approvalState === 'pending',
     actions: ['approve-risk', 'escalate-risk'],
   });
