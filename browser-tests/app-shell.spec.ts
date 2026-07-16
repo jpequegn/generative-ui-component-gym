@@ -33,3 +33,19 @@ test('shows the schema-boundary evidence report', async ({ page }) => {
   await expect(page.getByText(/4 approved specifications/i)).toBeVisible();
   await expect(page.getByText('unsafeLink')).toBeVisible();
 });
+
+test('completes the metric path and presents the failed-run state', async ({ page }) => {
+  await page.goto('/');
+
+  await page.getByRole('button', { name: 'Run metric snapshot' }).click();
+  await page.getByRole('button', { name: 'Apply next event' }).click();
+  await page.getByRole('button', { name: 'Apply next event' }).click();
+
+  await expect(page.getByRole('heading', { name: 'Median approval latency' })).toBeVisible();
+  await expect(page.getByText('completed', { exact: true })).toBeVisible();
+
+  await page.getByRole('button', { name: 'Simulate failed run' }).click();
+
+  await expect(page.getByText('No synthetic metric matches the supplied metric ID.')).toBeVisible();
+  await expect(page.getByText('failed', { exact: true })).toBeVisible();
+});
