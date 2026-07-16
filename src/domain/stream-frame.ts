@@ -8,7 +8,7 @@ export interface StreamFrame {
   error: string | null;
 }
 
-function visibleCardsFor(state: RunState): UiCardSpec[] {
+export function visibleCardsFor(state: RunState): UiCardSpec[] {
   return state.cards.filter(
     (card) => card.component !== 'approval-card' || state.phase === 'awaiting-approval',
   );

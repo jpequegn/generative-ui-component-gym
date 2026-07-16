@@ -295,6 +295,34 @@ h3 {
   padding: 0;
 }
 
+.approval-reason {
+  display: grid;
+  gap: 6px;
+  color: #5b6f62;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.approval-reason textarea {
+  min-height: 76px;
+  resize: vertical;
+  border: 1px solid #c6d0c9;
+  border-radius: 6px;
+  padding: 8px 10px;
+  background: #ffffff;
+  color: #17211c;
+  line-height: 1.4;
+}
+
+.approval-reason textarea:focus-visible {
+  outline: 2px solid #0f766e;
+  outline-offset: 1px;
+}
+
+.approval-reason textarea:disabled {
+  background: #f3f5f4;
+}
+
 .approval-actions {
   justify-content: start;
 }
@@ -498,6 +526,13 @@ h3 {
 
 .stream-error {
   color: #9b2c1f;
+}
+
+.action-result {
+  margin: 20px;
+  color: #225c3c;
+  font-size: 14px;
+  font-weight: 700;
 }
 
 .sr-only {

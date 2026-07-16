@@ -1,7 +1,11 @@
+import { useId, useState } from 'react';
+
+import type { ApprovalActionRequest } from '../domain/approval-actions';
 import { UiCardSpecSchema, type UiCardSpec } from '../domain/contracts';
 
 interface WorkCardGridProps {
   specs: readonly unknown[];
+  onApprovalAction?: (request: ApprovalActionRequest) => void;
 }
 
 function RiskChangeCard({
@@ -90,7 +94,26 @@ function EvidenceCard({ spec }: { spec: Extract<UiCardSpec, { component: 'eviden
   );
 }
 
-function ApprovalCard({ spec }: { spec: Extract<UiCardSpec, { component: 'approval-card' }> }) {
+function ApprovalCard({
+  spec,
+  onApprovalAction,
+}: {
+  spec: Extract<UiCardSpec, { component: 'approval-card' }>;
+  onApprovalAction?: (request: ApprovalActionRequest) => void;
+}) {
+  const [reason, setReason] = useState('');
+  const reasonId = useId();
+
+  function submit(action: ApprovalActionRequest['action']) {
+    onApprovalAction?.({
+      requestId: `request-${spec.id}-${action}`,
+      routeId: spec.data.routeId,
+      action,
+      reason,
+      expectedApprovalState: 'pending',
+    });
+  }
+
   return (
     <article className="work-card work-card--approval" aria-labelledby={`${spec.id}-title`}>
       <header className="work-card-header">
@@ -99,8 +122,17 @@ function ApprovalCard({ spec }: { spec: Extract<UiCardSpec, { component: 'approv
           <h2 id={`${spec.id}-title`}>{spec.data.title}</h2>
         </div>
       </header>
-      <fieldset className="approval-fieldset" disabled>
+      <fieldset className="approval-fieldset" disabled={onApprovalAction === undefined}>
         <legend>{spec.data.required ? 'Decision required' : 'Decision optional'}</legend>
+        <label className="approval-reason" htmlFor={reasonId}>
+          <span>Decision note</span>
+          <textarea
+            id={reasonId}
+            onChange={(event) => setReason(event.target.value)}
+            placeholder="Record the evidence used for this decision"
+            value={reason}
+          />
+        </label>
         <div className="approval-actions">
           {spec.data.actions.map((action) => (
             <button
@@ -110,6 +142,7 @@ function ApprovalCard({ spec }: { spec: Extract<UiCardSpec, { component: 'approv
                   : 'action-button'
               }
               key={action}
+              onClick={() => submit(action)}
               type="button"
             >
               {action === 'approve-risk' ? 'Approve' : 'Escalate'}
@@ -121,7 +154,13 @@ function ApprovalCard({ spec }: { spec: Extract<UiCardSpec, { component: 'approv
   );
 }
 
-function TrustedCard({ spec }: { spec: UiCardSpec }) {
+function TrustedCard({
+  spec,
+  onApprovalAction,
+}: {
+  spec: UiCardSpec;
+  onApprovalAction?: (request: ApprovalActionRequest) => void;
+}) {
   switch (spec.component) {
     case 'risk-change-card':
       return <RiskChangeCard spec={spec} />;
@@ -130,11 +169,11 @@ function TrustedCard({ spec }: { spec: UiCardSpec }) {
     case 'evidence-card':
       return <EvidenceCard spec={spec} />;
     case 'approval-card':
-      return <ApprovalCard spec={spec} />;
+      return <ApprovalCard onApprovalAction={onApprovalAction} spec={spec} />;
   }
 }
 
-export function WorkCardGrid({ specs }: WorkCardGridProps) {
+export function WorkCardGrid({ specs, onApprovalAction }: WorkCardGridProps) {
   const validSpecs = specs.flatMap((value) => {
     const parsed = UiCardSpecSchema.safeParse(value);
     return parsed.success ? [parsed.data] : [];
@@ -144,7 +183,7 @@ export function WorkCardGrid({ specs }: WorkCardGridProps) {
   return (
     <section className="card-grid" aria-label="Approved work cards">
       {validSpecs.map((spec) => (
-        <TrustedCard key={spec.id} spec={spec} />
+        <TrustedCard key={spec.id} onApprovalAction={onApprovalAction} spec={spec} />
       ))}
       {blockedCount > 0 ? (
         <section className="blocked-card" aria-live="polite">

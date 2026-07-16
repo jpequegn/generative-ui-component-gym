@@ -17,4 +17,10 @@ test('streams the risk-review route into approved cards', async ({ page }) => {
   await expect(
     page.getByRole('heading', { name: 'Approve privileged access change' }),
   ).toBeVisible();
+  await page.getByLabel('Decision note').fill('Synthetic reviewer recorded the required evidence.');
+  await page.getByRole('button', { name: 'Approve' }).click();
+  await expect(page.getByText(/Synthetic route approved/i)).toBeVisible();
+  await expect(
+    page.getByRole('heading', { name: 'Approve privileged access change' }),
+  ).not.toBeVisible();
 });
