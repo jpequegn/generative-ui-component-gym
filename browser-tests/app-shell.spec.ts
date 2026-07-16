@@ -24,3 +24,12 @@ test('streams the risk-review route into approved cards', async ({ page }) => {
     page.getByRole('heading', { name: 'Approve privileged access change' }),
   ).not.toBeVisible();
 });
+
+test('shows the schema-boundary evidence report', async ({ page }) => {
+  await page.goto('/');
+
+  await expect(page.getByRole('heading', { name: 'Known components only' })).toBeVisible();
+  await expect(page.getByText('Boundary holds')).toBeVisible();
+  await expect(page.getByText(/4 approved specifications/i)).toBeVisible();
+  await expect(page.getByText('unsafeLink')).toBeVisible();
+});
