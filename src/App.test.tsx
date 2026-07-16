@@ -4,11 +4,13 @@ import { describe, expect, it } from 'vitest';
 import App from './App';
 
 describe('App', () => {
-  it('renders the controlled workspace shell', () => {
+  it('renders the approved card workspace', () => {
     render(<App />);
 
-    expect(screen.getByRole('heading', { name: 'Execution workspace' })).toBeInTheDocument();
-    expect(screen.getByRole('status')).toHaveTextContent('Foundation ready');
-    expect(screen.getByRole('heading', { name: 'No active run' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Approved work cards' })).toBeInTheDocument();
+    expect(screen.getByRole('status')).toHaveTextContent('Catalog verified');
+    expect(
+      screen.getByRole('heading', { name: 'Review privileged access change' }),
+    ).toBeInTheDocument();
   });
 });
