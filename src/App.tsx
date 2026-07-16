@@ -1,4 +1,5 @@
 import { StreamConsole } from './components/StreamConsole';
+import { SpecificationEvidence } from './components/SpecificationEvidence';
 import './App.css';
 
 const navigation = ['Runs', 'Cards', 'Stream', 'Validation'];
@@ -38,6 +39,7 @@ export default function App() {
         </header>
 
         <StreamConsole />
+        <SpecificationEvidence />
       </section>
     </main>
   );

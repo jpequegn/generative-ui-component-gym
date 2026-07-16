@@ -8,8 +8,9 @@
   },
   "scripts": {
     "build": "tsc -b && vite build",
-    "check": "npm run format:check && npm run lint && npm run typecheck && npm run test && npm run build",
+    "check": "npm run format:check && npm run lint && npm run typecheck && npm run test && npm run evaluate:specs && npm run build",
     "dev": "vite",
+    "evaluate:specs": "tsx scripts/evaluate-specs.ts",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "lint": "oxlint",
@@ -34,6 +35,7 @@
     "jsdom": "^27.0.0",
     "oxlint": "^1.71.0",
     "prettier": "^3.6.0",
+    "tsx": "^4.8.1",
     "typescript": "~6.0.2",
     "vite": "^8.1.1",
     "vitest": "^4.0.0"
