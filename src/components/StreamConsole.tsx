@@ -1,7 +1,12 @@
 import { useMemo, useState } from 'react';
 
+import {
+  resolveApprovalAction,
+  type ApprovalActionRequest,
+  type ApprovalActionResolution,
+} from '../domain/approval-actions';
 import { simulateToolRun, type RunEvent, type RunState } from '../domain/runtime';
-import { streamFrame } from '../domain/stream-frame';
+import { streamFrame, visibleCardsFor } from '../domain/stream-frame';
 import { WorkCardGrid } from './WorkCards';
 
 type ScenarioId = 'risk' | 'metric' | 'failure';
@@ -43,12 +48,16 @@ function eventLabel(event: RunEvent): string {
 export function StreamConsole() {
   const [events, setEvents] = useState<RunEvent[]>([]);
   const [eventCount, setEventCount] = useState(0);
+  const [actionResolution, setActionResolution] = useState<ApprovalActionResolution | null>(null);
   const frame = useMemo(() => streamFrame(events, eventCount), [eventCount, events]);
+  const activeState = actionResolution?.nextState ?? frame.state;
+  const visibleCards = visibleCardsFor(activeState);
 
   function startScenario(id: ScenarioId) {
     const nextEvents = simulateToolRun(scenarios[id].request);
     setEvents(nextEvents);
     setEventCount(1);
+    setActionResolution(null);
   }
 
   function advance() {
@@ -57,6 +66,11 @@ export function StreamConsole() {
 
   function replay() {
     setEventCount(0);
+    setActionResolution(null);
+  }
+
+  function applyApprovalAction(request: ApprovalActionRequest) {
+    setActionResolution(resolveApprovalAction(activeState, request));
   }
 
   const canAdvance = eventCount < events.length;
@@ -77,8 +91,8 @@ export function StreamConsole() {
           ))}
         </div>
         <div className="stream-status" aria-live="polite">
-          <span className={`phase-indicator phase-indicator--${frame.state.phase}`}>
-            {phaseLabel(frame.state.phase)}
+          <span className={`phase-indicator phase-indicator--${activeState.phase}`}>
+            {phaseLabel(activeState.phase)}
           </span>
           <span>
             {eventCount}/{events.length} events
@@ -125,17 +139,30 @@ export function StreamConsole() {
             </ol>
           ) : null}
           {frame.error !== null ? <p className="stream-error">{frame.error}</p> : null}
-          {frame.state.error !== null ? <p className="stream-error">{frame.state.error}</p> : null}
+          {activeState.error !== null ? <p className="stream-error">{activeState.error}</p> : null}
         </section>
 
         <section className="stream-render" aria-labelledby="stream-render-title">
           <div className="panel-heading">
             <h2 id="stream-render-title">Rendered state</h2>
           </div>
-          {frame.visibleCards.length === 0 && frame.state.phase !== 'failed' ? (
+          {visibleCards.length === 0 && activeState.phase !== 'failed' ? (
             <p className="stream-empty">Awaiting validated card data</p>
           ) : null}
-          <WorkCardGrid specs={frame.visibleCards} />
+          {actionResolution !== null ? (
+            <p
+              className={actionResolution.accepted ? 'action-result' : 'stream-error'}
+              role="status"
+            >
+              {actionResolution.message}
+            </p>
+          ) : null}
+          <WorkCardGrid
+            onApprovalAction={
+              activeState.phase === 'awaiting-approval' ? applyApprovalAction : undefined
+            }
+            specs={visibleCards}
+          />
         </section>
       </div>
     </section>

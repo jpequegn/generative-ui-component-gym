@@ -48,6 +48,16 @@ describe('StreamConsole', () => {
       screen.getByRole('heading', { name: 'Approve privileged access change' }),
     ).toBeInTheDocument();
 
+    fireEvent.change(screen.getByLabelText('Decision note'), {
+      target: { value: 'Synthetic reviewer recorded the required evidence.' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Approve' }));
+
+    expect(screen.getByText(/Synthetic route approved/i)).toBeInTheDocument();
+    expect(
+      screen.queryByRole('heading', { name: 'Approve privileged access change' }),
+    ).not.toBeInTheDocument();
+
     fireEvent.click(screen.getByRole('button', { name: 'Replay stream' }));
     expect(screen.getByText('idle')).toBeInTheDocument();
     expect(
